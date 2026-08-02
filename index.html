@@ -40,7 +40,7 @@
     <h2>🛋️ 816顾家日 - 智能精准报价工具</h2>
     
     <div class="form-group">
-        <label>🔍 第一步：输入货号或名称查找（如 S8、1075、0190）：</label>
+        <label>🔍 第一步：输入货号或名称查找（如 S8、1085、B8007、0190）：</label>
         <input type="text" id="searchInput" placeholder="输入货号/名称，自动搜索" oninput="findMatches()">
     </div>
 
@@ -90,9 +90,9 @@
 </div>
 
 <script>
-// 严谨校对后的方案全量数据库
+// 严谨校对与修正后的全量数据库
 var db = [
-    // --- 智能系列 (重点更正：S8为30999，S6为17999) ---
+    // --- 智能系列 ---
     { id: 1, code: "ZX.M0580Z", name: "S系列S8智能床垫", price: 30999, type: "智能单品", cut: true },
     { id: 2, code: "ZX.M0560Z", name: "S系列S6智能床垫", price: 17999, type: "智能单品", cut: true },
     { id: 3, code: "ZX.M0331D.M26", name: "星舟1号Pro智能套床", price: 16999, type: "智能套餐", cut: true },
@@ -102,25 +102,25 @@ var db = [
     { id: 5, code: "B1075PQ3", name: "云梦床架 (OMO爆款单品)", price: 7999, type: "OMO单品", cut: false },
     { id: 6, code: "M0190", name: "3D全撑X5床垫 (OMO爆款单品)", price: 5999, type: "OMO单品", cut: false },
 
-    // --- 云梦/生辉/爆款套餐 ---
-    { id: 7, code: "B1075PQ3+M0577P", name: "云梦数字套餐 (床+床垫)", price: 14999, type: "套餐", cut: true },
-    { id: 8, code: "B1075PQ3+M0579", name: "生辉床架任选套餐 (含1075)", price: 14999, type: "套餐", cut: true },
-    { id: 9, code: "JD.B007PQ3/4", name: "云梦床架 (焕新爆款单品价)", price: 10999, type: "单品", cut: true },
-    { id: 10, code: "B1065PQ3/B1855PQ1", name: "云梦/云谣 爆款单卧套餐", price: 10999, type: "套餐", cut: false },
+    // --- 床架与套餐 (重点修正：1085为云梦/10999，B8007为珀斯/13999) ---
+    { id: 7, code: "B8007", name: "珀斯床架", price: 13999, type: "单品", cut: true },
+    { id: 8, code: "B1085PQ3", name: "云梦床架", price: 10999, type: "单品", cut: true },
+    { id: 9, code: "B1075PQ3+M0577P", name: "云梦数字套餐 (床+床垫)", price: 14999, type: "套餐", cut: true },
+    { id: 10, code: "B1075PQ3+M0579", name: "生辉床架任选套餐", price: 14999, type: "套餐", cut: true },
+    { id: 11, code: "B1065PQ3/B1855PQ1", name: "云梦/云谣 爆款单卧套餐", price: 10999, type: "套餐", cut: false },
 
     // --- IDeep 深睡系列 ---
-    { id: 11, code: "M1007A", name: "纯3D床垫(IDeep)", price: 40999, type: "深睡单品", cut: true },
-    { id: 12, code: "M1821", name: "伊甸(IDeep)", price: 21999, type: "深睡单品", cut: true },
-    { id: 13, code: "M1812", name: "传奇大满贯(IDeep)", price: 23999, type: "深睡单品", cut: true },
-    { id: 14, code: "M0578", name: "礼玉(IDeep)", price: 18999, type: "深睡单品", cut: true },
-    { id: 15, code: "M1813", name: "科莫(IDeep)", price: 18999, type: "深睡单品", cut: true },
+    { id: 12, code: "M1007A", name: "纯3D床垫(IDeep)", price: 40999, type: "深睡单品", cut: true },
+    { id: 13, code: "M1821", name: "伊甸(IDeep)", price: 21999, type: "深睡单品", cut: true },
+    { id: 14, code: "M1812", name: "传奇大满贯(IDeep)", price: 23999, type: "深睡单品", cut: true },
+    { id: 15, code: "M0578", name: "礼玉(IDeep)", price: 18999, type: "深睡单品", cut: true },
+    { id: 16, code: "M1813", name: "科莫(IDeep)", price: 18999, type: "深睡单品", cut: true },
 
-    // --- 常规主推单品 (参与全场满5000-500) ---
-    { id: 16, code: "M0188P", name: "王牌3D床垫", price: 11399, type: "单品", cut: true },
-    { id: 17, code: "M0577Pro", name: "M0577Pro焕新主推床垫", price: 5999, type: "单品", cut: true },
-    { id: 18, code: "JD.M1012.M26", name: "新婚垫&孝心垫", price: 4999, type: "单品", cut: true },
-    { id: 19, code: "JD.M1015.H24", name: "M3001升级款床垫", price: 3999, type: "单品", cut: true },
-    { id: 20, code: "B1085PQ3", name: "珀斯床架", price: 13999, type: "单品", cut: true },
+    // --- 常规主推床垫/床架 ---
+    { id: 17, code: "M0188P", name: "王牌3D床垫", price: 11399, type: "单品", cut: true },
+    { id: 18, code: "M0577Pro", name: "M0577Pro焕新主推床垫", price: 5999, type: "单品", cut: true },
+    { id: 19, code: "JD.M1012.M26", name: "新婚垫&孝心垫", price: 4999, type: "单品", cut: true },
+    { id: 20, code: "JD.M1015.H24", name: "M3001升级款床垫", price: 3999, type: "单品", cut: true },
     { id: 21, code: "B1855PQ1", name: "花瓣床架", price: 8999, type: "单品", cut: true },
     { id: 22, code: "B553PQ1", name: "云谣床架", price: 8599, type: "单品", cut: true },
     { id: 23, code: "JD.B036PQ3", name: "抱抱床架", price: 7599, type: "单品", cut: true },
