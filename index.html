@@ -3,36 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>816顾家日自动算价器</title>
+    <title>816顾家日 - 智能精准报价工具</title>
     <style>
-        * { box-sizing: border-box; font-family: sans-serif; }
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body { background: #f4f6f9; margin: 0; padding: 12px; color: #333; }
-        .card { background: #fff; border-radius: 10px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .card { background: #fff; border-radius: 10px; padding: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
         h2 { color: #d93025; font-size: 18px; margin-top: 0; border-bottom: 2px solid #fee; padding-bottom: 8px; }
         .form-group { margin-bottom: 12px; }
         label { font-weight: bold; font-size: 14px; display: block; margin-bottom: 5px; }
         input[type="text"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; }
+        
+        .match-box { margin: 10px 0; max-height: 200px; overflow-y: auto; }
+        .match-item { background: #fdf2f2; border: 1px solid #f8cecc; padding: 10px; border-radius: 6px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+        .match-info { font-size: 13px; }
+        .match-info strong { color: #d93025; }
+        .add-btn { background: #d93025; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+
+        .selected-box { margin: 10px 0; }
+        .selected-item { background: #eef7ff; border: 1px solid #b2d8ff; padding: 8px 12px; border-radius: 6px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
+        .del-btn { color: #d93025; background: none; border: none; font-size: 16px; cursor: pointer; font-weight: bold; }
+
         .checkbox-group { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 14px; }
         .checkbox-group input { width: 18px; height: 18px; }
         .calc-btn { width: 100%; background: #d93025; color: #fff; border: none; padding: 14px; font-size: 16px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .result-box { background: #fff0f0; border: 1px dashed #d93025; padding: 12px; border-radius: 6px; margin-top: 15px; display: none; }
         .price-tag { font-size: 28px; color: #d93025; font-weight: bold; text-align: center; margin: 8px 0; }
-        .tip { font-size: 12px; color: #888; margin-top: 4px; }
+        .tag { font-size: 11px; padding: 1px 5px; border-radius: 3px; background: #e0e0e0; margin-left: 4px; }
+        .tag-green { background: #d4edda; color: #155724; }
+        .tag-orange { background: #fff3cd; color: #856404; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>🛋️ 816顾家日 - 快速算价神器</h2>
+    <h2>🛋️ 816顾家日 - 智能精准报价工具</h2>
     
     <div class="form-group">
-        <label>🔍 输入产品型号 / 货号 (多个型号用空格或逗号隔开)：</label>
-        <input type="text" id="searchInput" placeholder="例：B1075 M0190 或 15816" value="">
-        <div class="tip">提示：直接输入货号中的数字或字母（如 1075、S8、0190）即可自动查找算价。</div>
+        <label>🔍 第一步：输入货号或名称查找（如 1075、B308、M0190）：</label>
+        <input type="text" id="searchInput" placeholder="输入货号/名称，按回车或点查询" oninput="findMatches()">
+    </div>
+
+    <!-- 检索匹配结果选择区 -->
+    <div id="matchSection" style="display:none;">
+        <label style="color:#d93025;">请选择你要计算的价格类型（单品 或 套餐）：</label>
+        <div class="match-box" id="matchList"></div>
+    </div>
+
+    <!-- 已选购算价列表 -->
+    <label>🛒 第二步：已确认选择的商品清单：</label>
+    <div class="selected-box" id="selectedList">
+        <div style="font-size: 12px; color: #999; text-align: center; padding: 10px; background:#f9f9f9; border-radius:4px;">请在上方搜索并点击【添加】产品</div>
     </div>
 
     <div class="form-group" style="border-top: 1px dashed #eee; padding-top: 10px;">
-        <label>🎁 附加活动优惠选择：</label>
+        <label>🎁 第三步：勾选附加活动优惠/换购：</label>
         <div class="checkbox-group">
             <input type="checkbox" id="hasSofa">
             <label for="hasSofa">已买沙发（卧室床+床垫享连带优惠立减250元）</label>
@@ -55,7 +79,7 @@
         </div>
     </div>
 
-    <button class="calc-btn" onclick="startCalculate()">一键自动算价</button>
+    <button class="calc-btn" onclick="startCalculate()">一键计算最终到手价</button>
 
     <div class="result-box" id="resultBox">
         <div style="text-align:center; font-size: 13px; color:#666;">顾客最终到手预估价</div>
@@ -65,69 +89,132 @@
 </div>
 
 <script>
-// 基础数据库
+// 全量包含单品与套餐的活动方案数据库
 var db = [
-    { code: "B1075PQ3", name: "云梦床架/套餐", price: 14999, cut: true },
-    { code: "M0190", name: "3D全撑X5床垫", price: 5999, cut: true },
-    { code: "ZX.M0580Z", name: "S系列S8智能床垫", price: 17999, cut: true },
-    { code: "ZX.M0560Z", name: "S系列S6智能床垫", price: 17999, cut: true },
-    { code: "ZX.M0331D.M26", name: "星舟1号Pro智能套床", price: 16999, cut: true },
-    { code: "M1007A", name: "纯3D床垫(IDeep)", price: 40999, cut: true },
-    { code: "M1821", name: "伊甸(IDeep)", price: 21999, cut: true },
-    { code: "M1812", name: "传奇大满贯(IDeep)", price: 23999, cut: true },
-    { code: "M0578", name: "礼玉(IDeep)", price: 18999, cut: true },
-    { code: "M1813", name: "科莫(IDeep)", price: 18999, cut: true },
-    { code: "M0188P", name: "王牌3D床垫", price: 11399, cut: true },
-    { code: "M0577Pro", name: "M0577Pro换新主推床垫", price: 5999, cut: true },
-    { code: "JD.M1012.M26", name: "新婚垫&孝心垫", price: 4999, cut: true },
-    { code: "JD.M1015.H24", name: "M3001升级款床垫", price: 3999, cut: true },
-    { code: "B1085PQ3", name: "珀斯床架", price: 13999, cut: true },
-    { code: "B1855PQ1", name: "花瓣床架", price: 8999, cut: true },
-    { code: "B553PQ1", name: "云谣床架", price: 8599, cut: true },
-    { code: "JD.B036PQ3", name: "抱抱床架", price: 7599, cut: true },
-    { code: "B1065PQ3", name: "蓝山床架", price: 7599, cut: true },
-    { code: "BY.B260PQ1", name: "B260床架", price: 5999, cut: true },
-    { code: "B553PQ1/M1010", name: "抱抱/蓝山 爆款单卧套餐", price: 9999, cut: false },
-    { code: "B1065PQ3/M1012", name: "云梦/云谣 爆款单卧套餐", price: 10999, cut: false },
-    { code: "DZ.B033PQ1", name: "高性价比DZ.B033PQ1床架", price: 3816, cut: false },
-    { code: "B1856PQ1+BY.M2818", name: "夺冠套餐", price: 8999, cut: false },
-    { code: "DZ.B033PQ1+M0320D", name: "轻雅套餐", price: 4999, cut: false },
-    { code: "15816", name: "15816元夺冠双厅单卧套餐", price: 15816, cut: false },
-    { code: "13816", name: "13816元智睡双卧套餐", price: 13816, cut: false },
-    { code: "9816", name: "9816元王牌双卧套餐", price: 9816, cut: false }
+    // --- 1075 云梦 区分单品与不同套餐 ---
+    { id: 1, code: "B1075PQ3", name: "云梦床架 (新品单品实价)", price: 7999, type: "单品", cut: true },
+    { id: 2, code: "B1075PQ3+M0577P", name: "云梦数字套餐 (床+床垫)", price: 14999, type: "套餐", cut: true },
+    { id: 3, code: "B1075PQ3+M0579", name: "生辉床架任选套餐 (含1075)", price: 14999, type: "套餐", cut: true },
+    { id: 4, code: "JD.B007PQ3/4", name: "云梦床架 (焕新爆款单品价)", price: 10999, type: "单品", cut: true },
+    { id: 5, code: "B1065PQ3", name: "云梦/云谣 爆款单卧套餐", price: 10999, type: "套餐", cut: false },
+
+    // --- B308 / B527 青少年系列 ---
+    { id: 6, code: "B308PQ1/B527PQ1", name: "未来星青少年床架 (单品实价)", price: 6999, type: "单品", cut: true },
+    { id: 7, code: "B308PQ1+DZ.M9010", name: "未来星青少年套餐 (床+椰棕床垫)", price: 7999, type: "套餐", cut: true },
+
+    // --- 床垫单品 ---
+    { id: 8, code: "M0190", name: "3D全撑X5床垫", price: 5999, type: "单品", cut: true },
+    { id: 9, code: "M0188P", name: "王牌3D床垫", price: 11399, type: "单品", cut: true },
+    { id: 10, code: "M0577Pro", name: "M0577Pro焕新主推床垫", price: 5999, type: "单品", cut: true },
+    { id: 11, code: "JD.M1012.M26", name: "新婚垫&孝心垫", price: 4999, type: "单品", cut: true },
+    { id: 12, code: "JD.M1015.H24", name: "M3001升级款床垫", price: 3999, type: "单品", cut: true },
+    { id: 13, code: "DZ.M9010", name: "青少年椰棕床垫", price: 2599, type: "单品", cut: true },
+    { id: 14, code: "M0130S", name: "青少年3D床垫", price: 3599, type: "单品", cut: true },
+
+    // --- 智能系列 ---
+    { id: 15, code: "ZX.M0580Z", name: "S系列S8智能床垫", price: 17999, type: "单品", cut: true },
+    { id: 16, code: "ZX.M0560Z", name: "S系列S6智能床垫", price: 17999, type: "单品", cut: true },
+    { id: 17, code: "ZX.M0331D.M26", name: "星舟1号Pro智能套床", price: 16999, type: "套餐", cut: true },
+
+    // --- IDeep深睡系列 ---
+    { id: 18, code: "M1007A", name: "纯3D床垫(IDeep)", price: 40999, type: "单品", cut: true },
+    { id: 19, code: "M1821", name: "伊甸(IDeep)", price: 21999, type: "单品", cut: true },
+    { id: 20, code: "M1812", name: "传奇大满贯(IDeep)", price: 23999, type: "单品", cut: true },
+    { id: 21, code: "M0578", name: "礼玉(IDeep)", price: 18999, type: "单品", cut: true },
+
+    // --- 其他推荐床架 ---
+    { id: 22, code: "B1085PQ3", name: "珀斯床架", price: 13999, type: "单品", cut: true },
+    { id: 23, code: "B1855PQ1", name: "花瓣床架", price: 8999, type: "单品", cut: true },
+    { id: 24, code: "B553PQ1", name: "云谣床架", price: 8599, type: "单品", cut: true },
+    { id: 25, code: "JD.B036PQ3", name: "抱抱床架", price: 7599, type: "单品", cut: true },
+    { id: 26, code: "BY.B260PQ1", name: "B260床架", price: 5999, type: "单品", cut: true },
+
+    // --- 爆款特价 / 组合一口价 (标注不参与满减) ---
+    { id: 27, code: "B553PQ1/M1010", name: "抱抱/蓝山 爆款单卧套餐", price: 9999, type: "套餐", cut: false },
+    { id: 28, code: "DZ.B033PQ1", name: "高性价比床架(DZ.B033PQ1)", price: 3816, type: "特价单品", cut: false },
+    { id: 29, code: "B1856PQ1+BY.M2818", name: "夺冠套餐", price: 8999, type: "特价套餐", cut: false },
+    { id: 30, code: "DZ.B033PQ1+M0320D", name: "轻雅套餐", price: 4999, type: "特价套餐", cut: false },
+    { id: 31, code: "15816", name: "15816元夺冠双厅单卧套餐", price: 15816, type: "特价套餐", cut: false },
+    { id: 32, code: "13816", name: "13816元智睡双卧套餐", price: 13816, type: "特价套餐", cut: false },
+    { id: 33, code: "9816", name: "9816元王牌双卧套餐", price: 9816, type: "特价套餐", cut: false }
 ];
 
-function startCalculate() {
-    var rawInput = document.getElementById('searchInput').value.trim();
-    if (!rawInput) {
-        alert("请输入产品型号或货号！");
+var selectedCart = [];
+
+function findMatches() {
+    var kw = document.getElementById('searchInput').value.trim().toUpperCase();
+    var matchSec = document.getElementById('matchSection');
+    var matchList = document.getElementById('matchList');
+
+    if (!kw) {
+        matchSec.style.display = 'none';
         return;
     }
 
-    // 分割输入的关键字
-    var keywords = rawInput.toUpperCase().split(/[\s,，]+/);
-    var matchedItems = [];
-    var notFound = [];
-
-    for (var i = 0; i < keywords.length; i++) {
-        var kw = keywords[i];
-        if (!kw) continue;
-        
-        var found = false;
-        for (var j = 0; j < db.length; j++) {
-            if (db[j].code.toUpperCase().indexOf(kw) !== -1 || db[j].name.toUpperCase().indexOf(kw) !== -1) {
-                matchedItems.push(db[j]);
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            notFound.push(kw);
+    var results = [];
+    for (var i = 0; i < db.length; i++) {
+        if (db[i].code.toUpperCase().indexOf(kw) !== -1 || db[i].name.toUpperCase().indexOf(kw) !== -1) {
+            results.push(db[i]);
         }
     }
 
-    if (matchedItems.length === 0) {
-        alert("未能识别输入的型号：[" + notFound.join(", ") + "]，请检查是否拼写正确。");
+    if (results.length === 0) {
+        matchList.innerHTML = '<div style="font-size:12px; color:#999; padding:5px;">未找到包含该货号的商品</div>';
+    } else {
+        var html = '';
+        for (var j = 0; j < results.length; j++) {
+            var item = results[j];
+            var typeTag = item.type === '单品' ? '<span class="tag tag-green">单品</span>' : '<span class="tag tag-orange">套餐</span>';
+            var cutTag = item.cut ? '<span class="tag tag-green">可满减</span>' : '<span class="tag">不参与满减</span>';
+            html += '<div class="match-item">' +
+                        '<div class="match-info">' +
+                            '<strong>' + item.name + '</strong> ' + typeTag + cutTag + '<br>' +
+                            '货号: ' + item.code + ' | 实价/活动价: ¥' + item.price +
+                        '</div>' +
+                        '<button class="add-btn" onclick="addToCart(' + item.id + ')">+ 添加</button>' +
+                    '</div>';
+        }
+        matchList.innerHTML = html;
+    }
+    matchSec.style.display = 'block';
+}
+
+function addToCart(id) {
+    for (var i = 0; i < db.length; i++) {
+        if (db[i].id === id) {
+            selectedCart.push(db[i]);
+            break;
+        }
+    }
+    renderCart();
+}
+
+function removeFromCart(index) {
+    selectedCart.splice(index, 1);
+    renderCart();
+}
+
+function renderCart() {
+    var list = document.getElementById('selectedList');
+    if (selectedCart.length === 0) {
+        list.innerHTML = '<div style="font-size: 12px; color: #999; text-align: center; padding: 10px; background:#f9f9f9; border-radius:4px;">请在上方搜索并点击【添加】产品</div>';
+        return;
+    }
+
+    var html = '';
+    for (var i = 0; i < selectedCart.length; i++) {
+        var item = selectedCart[i];
+        html += '<div class="selected-item">' +
+                    '<div><b>' + item.name + '</b> (' + item.type + ') - ¥' + item.price + '</div>' +
+                    '<button class="del-btn" onclick="removeFromCart(' + i + ')">×</button>' +
+                '</div>';
+    }
+    list.innerHTML = html;
+}
+
+function startCalculate() {
+    if (selectedCart.length === 0) {
+        alert("请先搜索并点击【添加】至少一件商品！");
         return;
     }
 
@@ -135,27 +222,23 @@ function startCalculate() {
     var noCutTotal = 0;
     var details = [];
 
-    for (var k = 0; k < matchedItems.length; k++) {
-        var item = matchedItems[k];
+    for (var i = 0; i < selectedCart.length; i++) {
+        var item = selectedCart[i];
         if (item.cut) {
             cutTotal += item.price;
         } else {
             noCutTotal += item.price;
         }
-        details.push("【已匹配】" + item.name + " (" + item.code + "): ¥" + item.price);
+        details.push("【已选】" + item.name + " (" + item.type + "): ¥" + item.price);
     }
 
-    if (notFound.length > 0) {
-        details.push("<span style='color:red;'>【未找到】" + notFound.join(", ") + "</span>");
-    }
-
-    // 沙发立减250
+    // 购沙发减250
     if (document.getElementById('hasSofa').checked && cutTotal > 0) {
         cutTotal -= 250;
         details.push("沙发连带卧室优惠：-¥250");
     }
 
-    // 满5000减500
+    // 满5000减500 (仅对参与满减的算)
     var fullCut = 0;
     if (cutTotal >= 5000) {
         fullCut = Math.floor(cutTotal / 5000) * 500;
@@ -163,7 +246,7 @@ function startCalculate() {
 
     var finalPrice = (cutTotal - fullCut) + noCutTotal;
     if (fullCut > 0) {
-        details.push("全场满5000减500优惠：-¥" + fullCut);
+        details.push("全场满5000立减优惠：-¥" + fullCut);
     }
 
     // 换购
@@ -173,7 +256,7 @@ function startCalculate() {
     if (document.getElementById('opt_399').checked) { finalPrice += 399; details.push("换购床头柜：+¥399"); }
 
     document.getElementById('finalPrice').innerText = finalPrice;
-    document.getElementById('detailText').innerHTML = "<b>算价明细：</b><br>" + details.join("<br>");
+    document.getElementById('detailText').innerHTML = "<b>报价计算明细：</b><br>" + details.join("<br>");
     document.getElementById('resultBox').style.display = 'block';
 }
 </script>
