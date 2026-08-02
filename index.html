@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>816顾家日 - 智能精准报价工具</title>
+    <title>816顾家日 - 智能精准报价工具(全屋版)</title>
     <style>
         * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         body { background: #f4f6f9; margin: 0; padding: 12px; color: #333; }
@@ -13,58 +13,74 @@
         label { font-weight: bold; font-size: 14px; display: block; margin-bottom: 5px; }
         input[type="text"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; }
         
-        .match-box { margin: 10px 0; max-height: 220px; overflow-y: auto; }
+        .match-box { margin: 10px 0; max-height: 250px; overflow-y: auto; }
         .match-item { background: #fdf2f2; border: 1px solid #f8cecc; padding: 10px; border-radius: 6px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
-        .match-info { font-size: 13px; }
+        .match-info { font-size: 13px; line-height: 1.4; }
         .match-info strong { color: #d93025; }
-        .add-btn { background: #d93025; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+        .add-btn { background: #d93025; color: #fff; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; white-space: nowrap; }
 
         .selected-box { margin: 10px 0; }
         .selected-item { background: #eef7ff; border: 1px solid #b2d8ff; padding: 8px 12px; border-radius: 6px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; }
         .del-btn { color: #d93025; background: none; border: none; font-size: 16px; cursor: pointer; font-weight: bold; }
 
-        .checkbox-group { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 14px; }
+        .section-title { font-size: 14px; font-weight: bold; color: #d93025; margin-top: 10px; border-left: 3px solid #d93025; padding-left: 6px; }
+        .checkbox-group { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 13px; }
         .checkbox-group input { width: 18px; height: 18px; }
-        .calc-btn { width: 100%; background: #d93025; color: #fff; border: none; padding: 14px; font-size: 16px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .calc-btn { width: 100%; background: #d93025; color: #fff; border: none; padding: 14px; font-size: 16px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 15px; }
         .result-box { background: #fff0f0; border: 1px dashed #d93025; padding: 12px; border-radius: 6px; margin-top: 15px; display: none; }
         .price-tag { font-size: 28px; color: #d93025; font-weight: bold; text-align: center; margin: 8px 0; }
         .tag { font-size: 11px; padding: 1px 5px; border-radius: 3px; background: #e0e0e0; margin-left: 4px; }
         .tag-green { background: #d4edda; color: #155724; }
-        .tag-orange { background: #fff3cd; color: #856404; }
         .tag-blue { background: #cce5ff; color: #004085; }
+        .tag-purple { background: #e2e3e5; color: #383d41; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>🛋️ 816顾家日 - 智能精准报价工具</h2>
+    <h2>🛋️ 816顾家日 - 智能精准报价工具(客餐厅+卧室全品类)</h2>
     
     <div class="form-group">
-        <label>🔍 第一步：输入货号或名称查找（如 007、S8、1075、0190）：</label>
-        <input type="text" id="searchInput" placeholder="支持纯数字/货号/名称实时搜索" oninput="findMatches()">
+        <label>🔍 第一步：搜索产品（支持纯数字/型号/名称，如 8002、6188、1085、007、S8）：</label>
+        <input type="text" id="searchInput" placeholder="例如输入：8002、6188、1085、0190..." oninput="findMatches()">
     </div>
 
     <!-- 检索匹配结果选择区 -->
     <div id="matchSection" style="display:none;">
-        <label style="color:#d93025;">请选择要添加的货号或套餐类型：</label>
+        <label style="color:#d93025;">请选择要添加的产品：</label>
         <div class="match-box" id="matchList"></div>
     </div>
 
     <!-- 已选购算价列表 -->
-    <label>🛒 第二步：已确认选择的商品清单：</label>
+    <label>🛒 第二步：已选择的方案清单：</label>
     <div class="selected-box" id="selectedList">
         <div style="font-size: 12px; color: #999; text-align: center; padding: 10px; background:#f9f9f9; border-radius:4px;">请在上方搜索并点击【添加】产品</div>
     </div>
 
+    <!-- 附加政策与换购选项 -->
     <div class="form-group" style="border-top: 1px dashed #eee; padding-top: 10px;">
-        <label>🎁 第三步：勾选附加活动优惠/换购：</label>
+        <div class="section-title">🎁 客餐厅升级与连带优惠</div>
         <div class="checkbox-group">
-            <input type="checkbox" id="hasSofa">
-            <label for="hasSofa">买任意沙发（卧室连带立减250元）</label>
+            <input type="checkbox" id="opt_399_motion">
+            <label for="opt_399_motion">+399元 升级指定功能沙发为双电动</label>
         </div>
         <div class="checkbox-group">
-            <input type="checkbox" id="opt_1999">
-            <label for="opt_1999">+1999元 换购家品7件套</label>
+            <input type="checkbox" id="opt_399_massage">
+            <label for="opt_399_massage">+399元 升级指定功能沙发为按摩功能</label>
+        </div>
+        <div class="checkbox-group">
+            <input type="checkbox" id="opt_1999_island">
+            <label for="opt_1999_island">+1999元 换购PT3278KC岛台一个（买任意餐厅连带）</label>
+        </div>
+
+        <div class="section-title">🎁 卧室连带与换购优惠</div>
+        <div class="checkbox-group">
+            <input type="checkbox" id="hasSofa">
+            <label for="hasSofa">客卧连带（已买任意沙发，卧室连带立减250元）</label>
+        </div>
+        <div class="checkbox-group">
+            <input type="checkbox" id="opt_1999_house">
+            <label for="opt_1999_house">+1999元 换购家品7件套</label>
         </div>
         <div class="checkbox-group">
             <input type="checkbox" id="opt_1199">
@@ -75,12 +91,12 @@
             <label for="opt_1399">+1399元 换购G061真皮小柜一对</label>
         </div>
         <div class="checkbox-group">
-            <input type="checkbox" id="opt_399">
-            <label for="opt_399">+399元 换购PTW3002G床头柜一个</label>
+            <input type="checkbox" id="opt_399_table">
+            <label for="opt_399_table">+399元 换购PTW3002G床头柜一个</label>
         </div>
     </div>
 
-    <button class="calc-btn" onclick="startCalculate()">一键计算最终到手价</button>
+    <button class="calc-btn" onclick="startCalculate()">一键精准计算最终到手价</button>
 
     <div class="result-box" id="resultBox">
         <div style="text-align:center; font-size: 13px; color:#666;">顾客最终到手预估价</div>
@@ -90,74 +106,108 @@
 </div>
 
 <script>
-// 根据官方活动方案文档全量程序化映射提取数据库
+// 汇集客餐厅与卧室两个官方CSV的数据库（共计91项）
 var db = [
-    // --- 816全民顾家日主推新品 (OMO爆款单品：1075+0190组合立减1000，不参与常规满5000-500) ---
-    { id: 1, code: "B1075PQ3", name: "云梦床架 (OMO爆款单品)", price: 7999, type: "OMO单品", cut: false },
-    { id: 2, code: "M0190", name: "3D全撑X5床垫 (OMO爆款单品)", price: 5999, type: "OMO单品", cut: false },
+    // === 客餐厅空间 ===
+    { id: 1, code: "9659", name: "经典·倚梦时光沙发", price: 28999, type: "客餐厅-沙发", cut: true },
+    { id: 2, code: "JD.6188", name: "经典·智境沙发", price: 26999, type: "客餐厅-沙发", cut: true },
+    { id: 3, code: "JD.0062", name: "经典·大自在沙发", price: 26999, type: "客餐厅-沙发", cut: true },
+    { id: 4, code: "JD.0061", name: "经典·大适界沙发", price: 24999, type: "客餐厅-沙发", cut: true },
+    { id: 5, code: "JD.0069", name: "经典·小方糖沙发", price: 11999, type: "客餐厅-沙发", cut: true },
+    { id: 6, code: "YS.6011", name: "悦尚·漫趣沙发", price: 11599, type: "客餐厅-沙发", cut: true },
+    { id: 7, code: "PT9130T", name: "创新UV岩板方变圆餐桌", price: 6599, type: "客餐厅-餐桌", cut: true },
+    { id: 8, code: "PT9131T", name: "雪玉白饰面大理石餐桌", price: 5199, type: "客餐厅-餐桌", cut: true },
+    { id: 9, code: "ZX.0057", name: "智享·云帆沙发", price: 13599, type: "客餐厅-沙发", cut: true },
+    { id: 10, code: "JD.0036", name: "经典·玛奇朵沙发", price: 7999, type: "客餐厅-沙发", cut: true },
+    { id: 11, code: "PT3735T", name: "铂金钻天然奢石餐桌", price: 17999, type: "客餐厅-餐桌", cut: true },
+    { id: 12, code: "PT3265T", name: "白玉天然大理石餐桌", price: 11999, type: "客餐厅-餐桌", cut: true },
+    { id: 13, code: "PT3188T-1", name: "2代UV工艺彩晶石餐桌", price: 9999, type: "客餐厅-餐桌", cut: true },
+    { id: 14, code: "PT3308T", name: "北冰洋大理石台面餐桌", price: 7999, type: "客餐厅-餐桌", cut: true },
+    { id: 15, code: "PT3759T-1", name: "意大利灰瓷质板餐桌", price: 6499, type: "客餐厅-餐桌", cut: true },
 
-    // --- 智能系列 ---
-    { id: 3, code: "ZX.M0580Z", name: "S系列S8智能床垫", price: 30999, type: "智能单品", cut: true },
-    { id: 4, code: "ZX.M0560Z", name: "S系列S6智能床垫", price: 17999, type: "智能单品", cut: true },
-    { id: 5, code: "ZX.M0331D.M26", name: "星舟1号Pro智能套床", price: 16999, type: "智能套餐", cut: true },
-    { id: 6, code: "PTN2F-YA", name: "星舟1号Pro更换智能架(PTN2F-YA)", price: 14999, type: "智能单品", cut: true },
-    { id: 7, code: "PTN2F", name: "星舟1号Pro更换智能架(PTN2F)", price: 12999, type: "智能单品", cut: true },
+    // 客餐厅一口价 / 不满减项目
+    { id: 16, code: "HS.8002", name: "进攻子弹沙发 (线上线下同款)", price: 7999, type: "客餐厅-一口价", cut: false },
+    { id: 17, code: "JD.6025", name: "融合货盘沙发 (JD.6025)", price: 8999, type: "客餐厅-一口价", cut: false },
+    { id: 18, code: "JD.6013/B", name: "夯实腰部沙发 (JD.6013/B)", price: 10999, type: "客餐厅-一口价", cut: false },
+    { id: 19, code: "ZX.0007B", name: "夯实腰部沙发 (ZX.0007B)", price: 11999, type: "客餐厅-一口价", cut: false },
+    { id: 20, code: "YS.6005", name: "夯实腰部沙发 (YS.6005)", price: 12999, type: "客餐厅-一口价", cut: false },
+    { id: 21, code: "JD.0080", name: "夯实腰部沙发 (JD.0080)", price: 14999, type: "客餐厅-一口价", cut: false },
+    { id: 22, code: "JD.6016", name: "夯实腰部沙发 (JD.6016)", price: 15999, type: "客餐厅-一口价", cut: false },
+    { id: 23, code: "YS.6009", name: "旗舰家族沙发 (YS.6009)", price: 12999, type: "客餐厅-一口价", cut: false },
+    { id: 24, code: "JD.6012", name: "旗舰家族沙发 (JD.6012)", price: 13999, type: "客餐厅-一口价", cut: false },
+    { id: 25, code: "ZX.0032", name: "旗舰家族沙发 (ZX.0032)", price: 13999, type: "客餐厅-一口价", cut: false },
+    { id: 26, code: "JD.6172", name: "旗舰家族沙发 (JD.6172)", price: 17999, type: "客餐厅-一口价", cut: false },
+    { id: 27, code: "PT3319T-1", name: "锦鲤·雪山灰晶岩板餐桌", price: 6999, type: "客餐厅-一口价", cut: false },
+    { id: 28, code: "JD.6015", name: "经典·凌云沙发 (反拍款)", price: 9999, type: "客餐厅-一口价", cut: false },
+    { id: 29, code: "ZX.0035", name: "智享·悦境沙发", price: 7999, type: "客餐厅-一口价", cut: false },
+    { id: 30, code: "PT3362T", name: "餐厅·圆融餐桌", price: 2999, type: "客餐厅-一口价", cut: false },
+    { id: 31, code: "KG.A185", name: "单椅·沐风", price: 1999, type: "客餐厅-单椅", cut: false },
+    { id: 32, code: "PT3710T", name: "北冰洋饰面大理石餐桌 (买沙发可立减1000)", price: 9999, type: "客餐厅-连带餐桌", cut: false },
+    { id: 33, code: "PT3732T", name: "亮光翡翠冰玉岩板餐桌", price: 7999, type: "客餐厅-连带餐桌", cut: false },
+    { id: 34, code: "PT3262T-1", name: "冰川白饰面大理石餐桌", price: 6499, type: "客餐厅-连带餐桌", cut: false },
+    { id: 35, code: "PT3305T", name: "汉白玉岩板餐桌", price: 3999, type: "客餐厅-连带餐桌", cut: false },
+    { id: 36, code: "JD.0002", name: "配套单椅 (JD.0002/KG.A601)", price: 3999, type: "客餐厅-单椅", cut: false },
+    { id: 37, code: "KG.A186", name: "FREE-B自重力单椅", price: 4999, type: "客餐厅-单椅", cut: false },
+    { id: 38, code: "KG.6812", name: "功能·云感沙发", price: 7599, type: "客餐厅-爆款", cut: false },
+    { id: 39, code: "KG.6810", name: "智享·星逸沙发", price: 6599, type: "客餐厅-爆款", cut: false },
+    { id: 40, code: "JD.6013+PT9138T-1", name: "整家任选套餐 (19800)", price: 19800, type: "客餐厅-套餐", cut: false },
 
-    // --- 深睡之选【IDeep床垫】 ---
-    { id: 8, code: "M1007A", name: "纯3D床垫(IDeep)", price: 40999, type: "深睡单品", cut: true },
-    { id: 9, code: "M1821-5级", name: "伊甸(IDeep)", price: 21999, type: "深睡单品", cut: true },
-    { id: 10, code: "M1812-5级", name: "传奇大满贯(IDeep)", price: 23999, type: "深睡单品", cut: true },
-    { id: 11, code: "M0578-4级", name: "礼玉(IDeep)", price: 18999, type: "深睡单品", cut: true },
-    { id: 12, code: "M1813-3级", name: "科莫(IDeep)", price: 18999, type: "深睡单品", cut: true },
+    // === 卧室空间 ===
+    { id: 41, code: "B1075PQ3", name: "云梦床架 (OMO爆款单品)", price: 7999, type: "卧室-OMO", cut: false },
+    { id: 42, code: "M0190", name: "3D全撑X5床垫 (OMO爆款单品)", price: 5999, type: "卧室-OMO", cut: false },
+    { id: 43, code: "ZX.M0580Z", name: "S系列S8智能床垫", price: 30999, type: "卧室-智能", cut: true },
+    { id: 44, code: "ZX.M0560Z", name: "S系列S6智能床垫", price: 17999, type: "卧室-智能", cut: true },
+    { id: 45, code: "JD.B711PQ7+PTN2F+ZX.M0331D.M26", name: "星舟1号Pro智能套床", price: 16999, type: "卧室-智能套餐", cut: true },
+    { id: 46, code: "PTN2F-YA", name: "星舟1号Pro更换智能架(PTN2F-YA)", price: 14999, type: "卧室-智能", cut: true },
+    { id: 47, code: "PTN2F", name: "星舟1号Pro更换智能架(PTN2F)", price: 12999, type: "卧室-智能", cut: true },
+    { id: 48, code: "ZX.B712PQ7+M0510E", name: "星舟1号2.0", price: 9999, type: "卧室-智能", cut: false },
+    { id: 49, code: "M1007A", name: "纯3D床垫(IDeep)", price: 40999, type: "卧室-IDeep", cut: true },
+    { id: 50, code: "M1821-5级", name: "伊甸(IDeep)", price: 21999, type: "卧室-IDeep", cut: true },
+    { id: 51, code: "M1812-5级", name: "传奇大满贯(IDeep)", price: 23999, type: "卧室-IDeep", cut: true },
+    { id: 52, code: "M0578-4级", name: "礼玉(IDeep)", price: 18999, type: "卧室-IDeep", cut: true },
+    { id: 53, code: "M1813-3级", name: "科莫(IDeep)", price: 18999, type: "卧室-IDeep", cut: true },
+    { id: 54, code: "B1075PQ3+M0577P", name: "云梦数字套餐 (床+床垫)", price: 14999, type: "卧室-套餐", cut: true },
+    { id: 55, code: "B1075PQ3+M0579", name: "生辉床架任选套餐", price: 14999, type: "卧室-套餐", cut: true },
+    { id: 56, code: "B553PQ1/BY.B260PQ1+M1010", name: "抱抱 爆款单卧套餐", price: 9999, type: "卧室-爆款套餐", cut: false },
+    { id: 57, code: "B036PQ3+M1010", name: "蓝山 爆款单卧套餐", price: 10999, type: "卧室-爆款套餐", cut: false },
+    { id: 58, code: "B1065PQ3+JD.M1012.M26", name: "云梦 爆款单卧套餐", price: 10999, type: "卧室-爆款套餐", cut: false },
+    { id: 59, code: "B1855PQ1+M1076P", name: "云谣 爆款单卧套餐", price: 10999, type: "卧室-爆款套餐", cut: false },
+    { id: 60, code: "M0188P", name: "王牌3D床垫", price: 11399, type: "卧室-床垫", cut: true },
+    { id: 61, code: "M0577Pro", name: "M0577Pro焕新主推床垫", price: 5999, type: "卧室-床垫", cut: true },
+    { id: 62, code: "JD.M1012.M26", name: "新婚垫&孝心垫", price: 4999, type: "卧室-床垫", cut: true },
+    { id: 63, code: "JD.M1015.H24", name: "M3001升级款床垫", price: 3999, type: "卧室-床垫", cut: true },
+    { id: 64, code: "B8007", name: "珀斯床架", price: 13999, type: "卧室-床架", cut: true },
+    { id: 65, code: "B1085PQ3", name: "云梦床架", price: 10999, type: "卧室-床架", cut: true },
+    { id: 66, code: "JD.B007PQ3/4", name: "花瓣床架", price: 8999, type: "卧室-床架", cut: true },
+    { id: 67, code: "B1855PQ1", name: "云谣床架", price: 8599, type: "卧室-床架", cut: true },
+    { id: 68, code: "B553PQ1", name: "抱抱床架", price: 7599, type: "卧室-床架", cut: true },
+    { id: 69, code: "JD.B036PQ3", name: "蓝山床架", price: 7599, type: "卧室-床架", cut: true },
+    { id: 70, code: "B1065PQ3", name: "云梦床架 (6999款)", price: 6999, type: "卧室-床架", cut: true },
+    { id: 71, code: "BY.B260PQ1", name: "奈斯床架", price: 5999, type: "卧室-床架", cut: true },
+    { id: 72, code: "B308PQ1/B527PQ1", name: "未来星青少年床架 (单品)", price: 5599, type: "卧室-青少年", cut: true },
+    { id: 73, code: "B308PQ1+DZ.M9010", name: "未来星青少年套餐 (床+床垫)", price: 7999, type: "卧室-青少年套餐", cut: true },
+    { id: 74, code: "DZ.M9010", name: "青少年椰棕床垫", price: 2599, type: "卧室-青少年", cut: true },
+    { id: 75, code: "M0130S", name: "青少年3D床垫", price: 3599, type: "卧室-青少年", cut: true },
+    { id: 76, code: "B1856PQ1/B021+BY.M2818", name: "夺冠套餐", price: 8999, type: "卧室-特价", cut: false },
+    { id: 77, code: "JD.B070PQ1+M9002P", name: "夺冠套餐(B070)", price: 6999, type: "卧室-特价", cut: false },
+    { id: 78, code: "DZ.B033PQ1+M0320D", name: "轻雅套餐", price: 4999, type: "卧室-特价", cut: false },
+    { id: 79, code: "JD.B070PQ1", name: "夺冠床架", price: 4599, type: "卧室-特价", cut: false },
+    { id: 80, code: "DZ.B033PQ1", name: "轻雅床架", price: 3816, type: "卧室-特价", cut: false },
+    { id: 81, code: "BY.M2818", name: "亚运垫", price: 2816, type: "卧室-特价", cut: false },
+    { id: 82, code: "M0320D", name: "高性价比床垫", price: 1999, type: "卧室-特价", cut: false },
 
-    // --- 数字套餐 / 床架任选套餐 ---
-    { id: 13, code: "B1075PQ3+M0577P", name: "云梦数字套餐 (床+床垫)", price: 14999, type: "数字套餐", cut: true },
-    { id: 14, code: "B1075PQ3+M0579", name: "生辉床架任选套餐", price: 14999, type: "任选套餐", cut: true },
+    // 全屋大套餐
+    { id: 83, code: "15816", name: "15816元夺冠双厅单卧套餐", price: 15816, type: "全屋大套餐", cut: false },
+    { id: 84, code: "13816", name: "13816元智睡双卧套餐", price: 13816, type: "全屋大套餐", cut: false },
+    { id: 85, code: "9816", name: "9816元夺冠客餐厅套餐", price: 9816, type: "全屋大套餐", cut: false },
 
-    // --- 爆款单卧 (不参与满减政策) ---
-    { id: 15, code: "B553PQ1/BY.B260PQ1", name: "抱抱 爆款单卧套餐", price: 9999, type: "爆款单卧", cut: false },
-    { id: 16, code: "B036PQ3+M1010", name: "蓝山 爆款单卧套餐", price: 10999, type: "爆款单卧", cut: false },
-    { id: 17, code: "B1065PQ3+JD.M1012.M26", name: "云梦 爆款单卧套餐", price: 10999, type: "爆款单卧", cut: false },
-    { id: 18, code: "B1855PQ1+M1076P", name: "云谣 爆款单卧套餐", price: 10999, type: "爆款单卧", cut: false },
-
-    // --- 无忧焕新 推荐床垫 ---
-    { id: 19, code: "M0188P", name: "王牌3D床垫", price: 11399, type: "推荐床垫", cut: true },
-    { id: 20, code: "M0577Pro", name: "M0577Pro换新主推床垫", price: 5999, type: "推荐床垫", cut: true },
-    { id: 21, code: "JD.M1012.M26", name: "新婚垫&孝心垫", price: 4999, type: "推荐床垫", cut: true },
-    { id: 22, code: "JD.M1015.H24", name: "M3001升级款床垫", price: 3999, type: "推荐床垫", cut: true },
-
-    // --- 无忧焕新 推荐床架 (官方方案精确匹配) ---
-    { id: 23, code: "B8007", name: "珀斯床架", price: 13999, type: "推荐床架", cut: true },
-    { id: 24, code: "B1085PQ3", name: "云梦床架", price: 10999, type: "推荐床架", cut: true },
-    { id: 25, code: "JD.B007PQ3/4", name: "花瓣床架", price: 8999, type: "推荐床架", cut: true },
-    { id: 26, code: "B1855PQ1", name: "云谣床架", price: 8599, type: "推荐床架", cut: true },
-    { id: 27, code: "B553PQ1", name: "抱抱床架", price: 7599, type: "推荐床架", cut: true },
-    { id: 28, code: "JD.B036PQ3", name: "蓝山床架", price: 7599, type: "推荐床架", cut: true },
-    { id: 29, code: "B1065PQ3", name: "云梦床架", price: 6999, type: "推荐床架", cut: true },
-    { id: 30, code: "BY.B260PQ1", name: "奈斯床架", price: 5999, type: "推荐床架", cut: true },
-
-    // --- 青少年系列 ---
-    { id: 31, code: "B308PQ1/B527PQ1", name: "未来星青少年床架 (单品)", price: 5599, type: "青少年单品", cut: true },
-    { id: 32, code: "B308PQ1+DZ.M9010", name: "未来星青少年套餐 (床+床垫)", price: 7999, type: "青少年套餐", cut: true },
-    { id: 33, code: "DZ.M9010", name: "青少年椰棕床垫", price: 2599, type: "青少年单品", cut: true },
-    { id: 34, code: "M0130S", name: "青少年3D床垫", price: 3599, type: "青少年单品", cut: true },
-
-    // --- 爆款特价 (不参与满减政策) ---
-    { id: 35, code: "B1856PQ1/B021+BY.M2818", name: "夺冠套餐", price: 8999, type: "爆款特价", cut: false },
-    { id: 36, code: "JD.B070PQ1+M9002P", name: "夺冠套餐(B070)", price: 6999, type: "爆款特价", cut: false },
-    { id: 37, code: "DZ.B033PQ1+M0320D", name: "轻雅套餐", price: 4999, type: "爆款特价", cut: false },
-    { id: 38, code: "JD.B070PQ1", name: "夺冠床架", price: 4599, type: "爆款特价", cut: false },
-    { id: 39, code: "DZ.B033PQ1", name: "轻雅床架", price: 3816, type: "爆款特价", cut: false },
-    { id: 40, code: "BY.M2818", name: "亚运垫", price: 2816, type: "爆款特价", cut: false },
-    { id: 41, code: "M0320D", name: "高性价比床垫", price: 1999, type: "爆款特价", cut: false },
-
-    // --- 固定一口价大套餐 (不参与满减政策) ---
-    { id: 42, code: "15816", name: "15816元夺冠双厅单卧套餐", price: 15816, type: "特价大套餐", cut: false },
-    { id: 43, code: "13816", name: "13816元智睡双卧套餐", price: 13816, type: "特价大套餐", cut: false },
-    { id: 44, code: "9816", name: "9816元王牌双卧套餐", price: 9816, type: "特价大套餐", cut: false },
-
-    // --- 配套单品 ---
-    { id: 45, code: "PTAM008", name: "咔哇椅", price: 3999, type: "配套单品", cut: true }
+    // 配套/妆台柜
+    { id: 86, code: "PTW5011TQ+YQ", name: "爆款妆台柜(PTW5011)", price: 2999, type: "卧室-配套", cut: false },
+    { id: 87, code: "PTW7001TQ+YQ", name: "爆款妆台柜(PTW7001)", price: 4999, type: "卧室-配套", cut: false },
+    { id: 88, code: "PT3106TQ-A+YQ", name: "爆款妆台柜(PT3106)", price: 3999, type: "卧室-配套", cut: false },
+    { id: 89, code: "PTB9097TQ+YQ", name: "爆款妆台柜(PTB9097)", price: 3599, type: "卧室-配套", cut: false },
+    { id: 90, code: "PT3210GW+PTW5011YQ", name: "爆款妆台柜(PT3210)", price: 3999, type: "卧室-配套", cut: false },
+    { id: 91, code: "PTAM008", name: "咔哇椅", price: 3999, type: "卧室-配套", cut: false }
 ];
 
 var selectedCart = [];
@@ -172,7 +222,7 @@ function findMatches() {
         return;
     }
 
-    // 格式化搜索关键词（去空格与特殊符号）
+    // 搜索词标准化处理（忽略空格及符号）
     var cleanKw = rawKw.replace(/[\s\.\-_/]/g, '').toUpperCase();
 
     var results = [];
@@ -191,7 +241,7 @@ function findMatches() {
         for (var j = 0; j < results.length; j++) {
             var item = results[j];
             var typeTag = '<span class="tag tag-blue">' + item.type + '</span>';
-            var cutTag = item.cut ? '<span class="tag tag-green">参与全场满减</span>' : '<span class="tag">不参加全场满减</span>';
+            var cutTag = item.cut ? '<span class="tag tag-green">参与满5000-500</span>' : '<span class="tag tag-purple">不含满减</span>';
             html += '<div class="match-item">' +
                         '<div class="match-info">' +
                             '<strong>' + item.name + '</strong> ' + typeTag + cutTag + '<br>' +
@@ -249,11 +299,15 @@ function startCalculate() {
     var details = [];
     var has1075 = false;
     var has0190 = false;
+    var hasSofaInCart = false;
+    var hasPT3710T = false;
 
     for (var i = 0; i < selectedCart.length; i++) {
         var item = selectedCart[i];
-        if (item.code === "B1075PQ3" && item.type === "OMO单品") has1075 = true;
-        if (item.code === "M0190" && item.type === "OMO单品") has0190 = true;
+        if (item.code === "B1075PQ3") has1075 = true;
+        if (item.code === "M0190") has0190 = true;
+        if (item.type.indexOf("沙发") !== -1) hasSofaInCart = true;
+        if (item.code === "PT3710T") hasPT3710T = true;
 
         if (item.cut) {
             cutTotal += item.price;
@@ -263,16 +317,23 @@ function startCalculate() {
         details.push("【已选】" + item.name + " (" + item.code + "): ¥" + item.price);
     }
 
-    // 检查 OMO 1075 + 0190 组合立减1000专项政策
-    var comboDiscount = 0;
+    // 专项优惠 1: OMO 1075 + 0190 组合减1000
+    var omoDiscount = 0;
     if (has1075 && has0190) {
-        comboDiscount = 1000;
-        details.push("<span style='color:#d93025;font-weight:bold;'>触发优惠：1075床架+0190床垫 组合立减优惠 -¥1000</span>");
+        omoDiscount = 1000;
+        details.push("<span style='color:#d93025;font-weight:bold;'>触发优惠：云梦床架+0190床垫 组合立减 -¥1000</span>");
     }
 
-    // 买任意沙发连带立减250
+    // 专项优惠 2: 沙发 + PT3710T餐桌 连带立减1000
+    var diningDiscount = 0;
+    if (hasSofaInCart && hasPT3710T) {
+        diningDiscount = 1000;
+        details.push("<span style='color:#d93025;font-weight:bold;'>触发优惠：购买沙发连带PT3710T餐桌立减 -¥1000</span>");
+    }
+
+    // 专项优惠 3: 买任意沙发连带卧室立减250
     var sofaDiscount = 0;
-    if (document.getElementById('hasSofa').checked) {
+    if (document.getElementById('hasSofa').checked || hasSofaInCart) {
         sofaDiscount = 250;
         details.push("触发优惠：沙发连带卧室空间立减 -¥250");
     }
@@ -281,19 +342,22 @@ function startCalculate() {
     var fullCut = 0;
     if (cutTotal >= 5000) {
         fullCut = Math.floor(cutTotal / 5000) * 500;
-        details.push("触发优惠：全场满5000立减优惠 -¥" + fullCut);
+        details.push("触发优惠：全场实付满5000立减 -¥" + fullCut);
     }
 
-    var finalPrice = (cutTotal - fullCut) + noCutTotal - comboDiscount - sofaDiscount;
+    var finalPrice = (cutTotal - fullCut) + noCutTotal - omoDiscount - diningDiscount - sofaDiscount;
 
-    // 换购加价
-    if (document.getElementById('opt_1999').checked) { finalPrice += 1999; details.push("换购加价：家品7件套 +¥1999"); }
+    // 换购/升级加价
+    if (document.getElementById('opt_399_motion').checked) { finalPrice += 399; details.push("升级加价：升级双电动功能 +¥399"); }
+    if (document.getElementById('opt_399_massage').checked) { finalPrice += 399; details.push("升级加价：升级按摩功能 +¥399"); }
+    if (document.getElementById('opt_1999_island').checked) { finalPrice += 1999; details.push("换购加价：PT3278KC岛台一个 +¥1999"); }
+    if (document.getElementById('opt_1999_house').checked) { finalPrice += 1999; details.push("换购加价：家品7件套 +¥1999"); }
     if (document.getElementById('opt_1199').checked) { finalPrice += 1199; details.push("换购加价：夏日凉感8件套 +¥1199"); }
     if (document.getElementById('opt_1399').checked) { finalPrice += 1399; details.push("换购加价：G061真皮小柜一对 +¥1399"); }
-    if (document.getElementById('opt_399').checked) { finalPrice += 399; details.push("换购加价：PTW3002G床头柜 +¥399"); }
+    if (document.getElementById('opt_399_table').checked) { finalPrice += 399; details.push("换购加价：PTW3002G床头柜 +¥399"); }
 
     document.getElementById('finalPrice').innerText = finalPrice;
-    document.getElementById('detailText').innerHTML = "<b>报价计算明细：</b><br>" + details.join("<br>");
+    document.getElementById('detailText').innerHTML = "<b>报价明细与优惠应用：</b><br>" + details.join("<br>");
     document.getElementById('resultBox').style.display = 'block';
 }
 </script>
