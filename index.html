@@ -40,7 +40,7 @@
     <h2>🛋️ 816顾家日 - 智能精准报价工具</h2>
     
     <div class="form-group">
-        <label>🔍 第一步：输入货号或名称查找（如 1075、0190、B308）：</label>
+        <label>🔍 第一步：输入货号或名称查找（如 S8、1075、0190）：</label>
         <input type="text" id="searchInput" placeholder="输入货号/名称，自动搜索" oninput="findMatches()">
     </div>
 
@@ -90,55 +90,55 @@
 </div>
 
 <script>
-// 精确数据库（正确配置 OMO 产品及常规全场满减属性）
+// 严谨校对后的方案全量数据库
 var db = [
-    // OMO 专项爆款单品 (不参加全场满5000-500，享受专项组合减1000)
-    { id: 1, code: "B1075PQ3", name: "云梦床架 (OMO爆款单品)", price: 7999, type: "OMO单品", cut: false, groupKey: "1075_0190" },
-    { id: 2, code: "M0190", name: "3D全撑X5床垫 (OMO爆款单品)", price: 5999, type: "OMO单品", cut: false, groupKey: "1075_0190" },
+    // --- 智能系列 (重点更正：S8为30999，S6为17999) ---
+    { id: 1, code: "ZX.M0580Z", name: "S系列S8智能床垫", price: 30999, type: "智能单品", cut: true },
+    { id: 2, code: "ZX.M0560Z", name: "S系列S6智能床垫", price: 17999, type: "智能单品", cut: true },
+    { id: 3, code: "ZX.M0331D.M26", name: "星舟1号Pro智能套床", price: 16999, type: "智能套餐", cut: true },
+    { id: 4, code: "PTN2F-YA", name: "星舟1号Pro更换智能架", price: 14999, type: "智能单品", cut: true },
 
-    // 套餐类 (一口价/套餐不参与全场满减)
-    { id: 3, code: "B1075PQ3+M0577P", name: "云梦数字套餐 (床+床垫)", price: 14999, type: "套餐", cut: true },
-    { id: 4, code: "B1075PQ3+M0579", name: "生辉床架任选套餐 (含1075)", price: 14999, type: "套餐", cut: true },
-    { id: 5, code: "JD.B007PQ3/4", name: "云梦床架 (焕新爆款单品价)", price: 10999, type: "单品", cut: true },
-    { id: 6, code: "B1065PQ3", name: "云梦/云谣 爆款单卧套餐", price: 10999, type: "套餐", cut: false },
+    // --- OMO 爆款单品 (组合1075+0190立减1000，不参加常规满5000-500) ---
+    { id: 5, code: "B1075PQ3", name: "云梦床架 (OMO爆款单品)", price: 7999, type: "OMO单品", cut: false },
+    { id: 6, code: "M0190", name: "3D全撑X5床垫 (OMO爆款单品)", price: 5999, type: "OMO单品", cut: false },
 
-    // 青少年系列
-    { id: 7, code: "B308PQ1/B527PQ1", name: "未来星青少年床架 (单品实价)", price: 6999, type: "单品", cut: true },
-    { id: 8, code: "B308PQ1+DZ.M9010", name: "未来星青少年套餐 (床+椰棕床垫)", price: 7999, type: "套餐", cut: true },
+    // --- 云梦/生辉/爆款套餐 ---
+    { id: 7, code: "B1075PQ3+M0577P", name: "云梦数字套餐 (床+床垫)", price: 14999, type: "套餐", cut: true },
+    { id: 8, code: "B1075PQ3+M0579", name: "生辉床架任选套餐 (含1075)", price: 14999, type: "套餐", cut: true },
+    { id: 9, code: "JD.B007PQ3/4", name: "云梦床架 (焕新爆款单品价)", price: 10999, type: "单品", cut: true },
+    { id: 10, code: "B1065PQ3/B1855PQ1", name: "云梦/云谣 爆款单卧套餐", price: 10999, type: "套餐", cut: false },
 
-    // 其他常规单品 (参与全场满5000-500)
-    { id: 9, code: "M0188P", name: "王牌3D床垫", price: 11399, type: "单品", cut: true },
-    { id: 10, code: "M0577Pro", name: "M0577Pro焕新主推床垫", price: 5999, type: "单品", cut: true },
-    { id: 11, code: "JD.M1012.M26", name: "新婚垫&孝心垫", price: 4999, type: "单品", cut: true },
-    { id: 12, code: "JD.M1015.H24", name: "M3001升级款床垫", price: 3999, type: "单品", cut: true },
-    { id: 13, code: "DZ.M9010", name: "青少年椰棕床垫", price: 2599, type: "单品", cut: true },
+    // --- IDeep 深睡系列 ---
+    { id: 11, code: "M1007A", name: "纯3D床垫(IDeep)", price: 40999, type: "深睡单品", cut: true },
+    { id: 12, code: "M1821", name: "伊甸(IDeep)", price: 21999, type: "深睡单品", cut: true },
+    { id: 13, code: "M1812", name: "传奇大满贯(IDeep)", price: 23999, type: "深睡单品", cut: true },
+    { id: 14, code: "M0578", name: "礼玉(IDeep)", price: 18999, type: "深睡单品", cut: true },
+    { id: 15, code: "M1813", name: "科莫(IDeep)", price: 18999, type: "深睡单品", cut: true },
 
-    // 智能系列
-    { id: 14, code: "ZX.M0580Z", name: "S系列S8智能床垫", price: 17999, type: "单品", cut: true },
-    { id: 15, code: "ZX.M0560Z", name: "S系列S6智能床垫", price: 17999, type: "单品", cut: true },
-    { id: 16, code: "ZX.M0331D.M26", name: "星舟1号Pro智能套床", price: 16999, type: "套餐", cut: true },
+    // --- 常规主推单品 (参与全场满5000-500) ---
+    { id: 16, code: "M0188P", name: "王牌3D床垫", price: 11399, type: "单品", cut: true },
+    { id: 17, code: "M0577Pro", name: "M0577Pro焕新主推床垫", price: 5999, type: "单品", cut: true },
+    { id: 18, code: "JD.M1012.M26", name: "新婚垫&孝心垫", price: 4999, type: "单品", cut: true },
+    { id: 19, code: "JD.M1015.H24", name: "M3001升级款床垫", price: 3999, type: "单品", cut: true },
+    { id: 20, code: "B1085PQ3", name: "珀斯床架", price: 13999, type: "单品", cut: true },
+    { id: 21, code: "B1855PQ1", name: "花瓣床架", price: 8999, type: "单品", cut: true },
+    { id: 22, code: "B553PQ1", name: "云谣床架", price: 8599, type: "单品", cut: true },
+    { id: 23, code: "JD.B036PQ3", name: "抱抱床架", price: 7599, type: "单品", cut: true },
+    { id: 24, code: "BY.B260PQ1", name: "B260床架", price: 5999, type: "单品", cut: true },
 
-    // IDeep深睡系列
-    { id: 17, code: "M1007A", name: "纯3D床垫(IDeep)", price: 40999, type: "单品", cut: true },
-    { id: 18, code: "M1821", name: "伊甸(IDeep)", price: 21999, type: "单品", cut: true },
-    { id: 19, code: "M1812", name: "传奇大满贯(IDeep)", price: 23999, type: "单品", cut: true },
-    { id: 20, code: "M0578", name: "礼玉(IDeep)", price: 18999, type: "单品", cut: true },
+    // --- 青少年系列 ---
+    { id: 25, code: "B308PQ1/B527PQ1", name: "未来星青少年床架 (单品)", price: 6999, type: "单品", cut: true },
+    { id: 26, code: "B308PQ1+DZ.M9010", name: "未来星青少年套餐 (床+床垫)", price: 7999, type: "套餐", cut: true },
+    { id: 27, code: "DZ.M9010", name: "青少年椰棕床垫", price: 2599, type: "单品", cut: true },
 
-    // 其他床架
-    { id: 21, code: "B1085PQ3", name: "珀斯床架", price: 13999, type: "单品", cut: true },
-    { id: 22, code: "B1855PQ1", name: "花瓣床架", price: 8999, type: "单品", cut: true },
-    { id: 23, code: "B553PQ1", name: "云谣床架", price: 8599, type: "单品", cut: true },
-    { id: 24, code: "JD.B036PQ3", name: "抱抱床架", price: 7599, type: "单品", cut: true },
-    { id: 25, code: "BY.B260PQ1", name: "B260床架", price: 5999, type: "单品", cut: true },
-
-    // 一口价特价套餐 (不参与满减)
-    { id: 26, code: "B553PQ1/M1010", name: "抱抱/蓝山 爆款单卧套餐", price: 9999, type: "套餐", cut: false },
-    { id: 27, code: "DZ.B033PQ1", name: "高性价比床架(DZ.B033PQ1)", price: 3816, type: "特价", cut: false },
-    { id: 28, code: "B1856PQ1+BY.M2818", name: "夺冠套餐", price: 8999, type: "特价", cut: false },
-    { id: 29, code: "DZ.B033PQ1+M0320D", name: "轻雅套餐", price: 4999, type: "特价", cut: false },
-    { id: 30, code: "15816", name: "15816元夺冠双厅单卧套餐", price: 15816, type: "特价", cut: false },
-    { id: 31, code: "13816", name: "13816元智睡双卧套餐", price: 13816, type: "特价", cut: false },
-    { id: 32, code: "9816", name: "9816元王牌双卧套餐", price: 9816, type: "特价", cut: false }
+    // --- 特价/一口价组合 (不参与全场满减) ---
+    { id: 28, code: "B553PQ1/M1010", name: "抱抱/蓝山 爆款单卧套餐", price: 9999, type: "特价套餐", cut: false },
+    { id: 29, code: "DZ.B033PQ1", name: "高性价比床架(DZ.B033PQ1)", price: 3816, type: "特价单品", cut: false },
+    { id: 30, code: "B1856PQ1+BY.M2818", name: "夺冠套餐", price: 8999, type: "特价套餐", cut: false },
+    { id: 31, code: "DZ.B033PQ1+M0320D", name: "轻雅套餐", price: 4999, type: "特价套餐", cut: false },
+    { id: 32, code: "15816", name: "15816元夺冠双厅单卧套餐", price: 15816, type: "特价套餐", cut: false },
+    { id: 33, code: "13816", name: "13816元智睡双卧套餐", price: 13816, type: "特价套餐", cut: false },
+    { id: 34, code: "9816", name: "9816元王牌双卧套餐", price: 9816, type: "特价套餐", cut: false }
 ];
 
 var selectedCart = [];
@@ -171,7 +171,7 @@ function findMatches() {
             html += '<div class="match-item">' +
                         '<div class="match-info">' +
                             '<strong>' + item.name + '</strong> ' + typeTag + cutTag + '<br>' +
-                            '货号: ' + item.code + ' | 实价: ¥' + item.price +
+                            '货号: ' + item.code + ' | 方案价: ¥' + item.price +
                         '</div>' +
                         '<button class="add-btn" onclick="addToCart(' + item.id + ')">+ 添加</button>' +
                     '</div>';
@@ -239,7 +239,7 @@ function startCalculate() {
         details.push("【已选】" + item.name + ": ¥" + item.price);
     }
 
-    // 检查 OMO 1075 + 0190 组合连带减1000专项政策
+    // 检查 OMO 1075 + 0190 组合立减1000专项政策
     var comboDiscount = 0;
     if (has1075 && has0190) {
         comboDiscount = 1000;
@@ -253,7 +253,7 @@ function startCalculate() {
         details.push("触发优惠：沙发连带卧室立减 -¥250");
     }
 
-    // 常规全场满5000减500 (仅算标记参与满减的常规商品)
+    // 常规全场满5000减500
     var fullCut = 0;
     if (cutTotal >= 5000) {
         fullCut = Math.floor(cutTotal / 5000) * 500;
