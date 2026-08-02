@@ -73,10 +73,10 @@
             <label for="opt_1999_island">+1999元 换购PT3278KC岛台一个（买任意餐厅连带）</label>
         </div>
 
-        <div class="section-title">🎁 卧室连带与换购</div>
+        <div class="section-title">🎁 卧室连带与换购优惠</div>
         <div class="checkbox-group">
             <input type="checkbox" id="hasSofa">
-            <label for="hasSofa">已买任意沙发（卧室连带立减250元）</label>
+            <label for="hasSofa">客卧连带（已买任意沙发，卧室连带立减500元）</label>
         </div>
         <div class="checkbox-group">
             <input type="checkbox" id="opt_1999_house">
@@ -327,11 +327,11 @@ function startCalculate() {
         details.push("<span style='color:#d93025;font-weight:bold;'>触发优惠：买沙发连带PT3710T餐桌立减 -¥1000</span>");
     }
 
-    // 专项优惠 3: 买任意沙发连带卧室立减250
+    // 专项优惠 3: 客卧连带立减500元
     var sofaDiscount = 0;
     if (document.getElementById('hasSofa').checked || hasSofaInCart) {
-        sofaDiscount = 250;
-        details.push("触发优惠：沙发连带卧室空间立减 -¥250");
+        sofaDiscount = 500;
+        details.push("触发优惠：沙发连带卧室空间立减 -¥500");
     }
 
     // 常规全场满5000减500
