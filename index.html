@@ -13,11 +13,13 @@
         label { font-weight: bold; font-size: 14px; display: block; margin-bottom: 5px; color: #555; }
         input[type="text"], select { width: 100%; padding: 11px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; background: #fff; }
         
+        /* 模糊搜索下拉列表样式 */
         .search-results { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border: 1px solid #ddd; border-radius: 0 0 6px 6px; max-height: 200px; overflow-y: auto; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: none; }
         .search-item { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 13px; }
         .search-item:hover { background: #f0f7ff; }
         .search-item strong { color: #d93025; font-size: 14px; }
 
+        /* 已选产品卡片 */
         .selected-list { margin: 10px 0; }
         .selected-card { background: #f8f9fa; border: 1px solid #e9ecef; border-left: 4px solid #d93025; padding: 10px; border-radius: 4px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
         .selected-info { font-size: 13px; line-height: 1.4; }
@@ -45,7 +47,7 @@
     </div>
 
     <!-- 已选商品列表 -->
-    <label>🛒 已选购卧室产品列表：</label>
+    <label>🛒 已选购产品/套餐列表：</label>
     <div class="selected-list" id="selectedList">
         <div style="font-size: 12px; color: #999; text-align: center; padding: 10px;">暂未选择产品，请在上方搜索添加</div>
     </div>
@@ -55,15 +57,15 @@
         <label>🎁 连带优惠与超值加购：</label>
         <div class="checkbox-group">
             <input type="checkbox" id="hasSofa">
-            <label for="hasSofa">购任意沙发（卧室享连带优惠立减250元）[cite: 1]</label>
+            <label for="hasSofa">买任意沙发（卧室床+床垫立减500元）</label>
         </div>
         <div class="checkbox-group">
             <input type="checkbox" id="opt_jiaju1999">
-            <label for="opt_jiaju1999">+1999元 换购家品7件套[cite: 1]</label>
+            <label for="opt_jiaju1999">+1999元 换购家品7件套</label>
         </div>
         <div class="checkbox-group">
             <input type="checkbox" id="opt_jiaju1199">
-            <label for="opt_jiaju1199">+1199元 换购夏日凉感8件套[cite: 1]</label>
+            <label for="opt_jiaju1199">+1199元 换购夏日凉感8件套</label>
         </div>
         <div class="checkbox-group">
             <input type="checkbox" id="opt_cabinet1399">
@@ -79,14 +81,14 @@
 
     <!-- 结果展示 -->
     <div class="result-box" id="resultBox" style="display:none;">
-        <div style="text-align:center; font-size: 13px; color:#666;">顾客最终到手预估价</div>
+        <div style="text-align:center; font-size: 13px; color:#666;">顾客最终到手估算价</div>
         <div class="price-tag">¥ <span id="finalPrice">0</span></div>
         <div id="detailText" style="font-size: 13px; color: #444; line-height: 1.6;"></div>
     </div>
 </div>
 
 <script>
-// 活动方案数据库[cite: 1]
+// 活动方案内置完整数据库[cite: 1]
 const db = [
     // 智能系列[cite: 1]
     { code: "ZX.M0580Z", name: "S系列S8智能床垫", price: 17999, allowFullCut: true, remark: "爆款价17999元" },[cite: 1]
@@ -106,13 +108,13 @@ const db = [
     { code: "B1075PQ3+M0577P", name: "云梦数字套餐", price: 14999, allowFullCut: true, remark: "套餐内产品可任意更换补差" },[cite: 1]
     { code: "B1075PQ3+M0579", name: "生辉床架任选套餐", price: 14999, allowFullCut: true, remark: "11999内床架任选" },[cite: 1]
 
-    // 爆款单卧套餐 (标注不参与满减)[cite: 1]
-    { code: "B553PQ1/BY.B260PQ1/B036PQ3+M1010", name: "抱抱/蓝山 爆款单卧套餐", price: 9999, allowFullCut: false, remark: "不参与满减政策" },[cite: 1]
-    { code: "B1065PQ3/B1855PQ1+M1012/M1076P", name: "云梦/云谣 爆款单卧套餐", price: 10999, allowFullCut: false, remark: "不参与满减政策" },[cite: 1]
+    // 爆款单卧套餐 (不参与满减)[cite: 1]
+    { code: "B553PQ1/BY.B260PQ1/B036PQ3+M1010", name: "抱抱/蓝山 爆款单卧套餐", price: 9999, allowFullCut: false, remark: "一口价特价，不参与满减" },[cite: 1]
+    { code: "B1065PQ3/B1855PQ1+M1012/M1076P", name: "云梦/云谣 爆款单卧套餐", price: 10999, allowFullCut: false, remark: "一口价特价，不参与满减" },[cite: 1]
 
     // 推荐床垫/床架单品[cite: 1]
     { code: "M0188P", name: "王牌3D床垫", price: 11399, allowFullCut: true, remark: "爆款价" },[cite: 1]
-    { code: "M0577Pro", name: "M0577Pro换新主推床垫", price: 5999, allowFullCut: true, remark: "赠2个记忆绵智慧枕" },[cite: 1]
+    { code: "M0577Pro", name: "M0577Pro换新主推床垫", price: 5999, allowFullCut: true, remark: "赠2个记忆绵智慧枕P100-Max" },[cite: 1]
     { code: "JD.M1012.M26", name: "新婚垫&孝心垫", price: 4999, allowFullCut: true, remark: "爆款价" },[cite: 1]
     { code: "JD.M1015.H24", name: "M3001升级款床垫", price: 3999, allowFullCut: true, remark: "爆款价" },[cite: 1]
     { code: "B1085PQ3", name: "珀斯床架", price: 13999, allowFullCut: true, remark: "爆款价" },[cite: 1]
@@ -127,14 +129,14 @@ const db = [
     // 青少年系列[cite: 1]
     { code: "B308PQ1/B527PQ1+DZ.M9010", name: "未来星青少年套餐", price: 7999, allowFullCut: true, remark: "床架+椰棕床垫套餐" },[cite: 1]
 
-    // 爆款特价 / 组合一口价 (不参与满减)[cite: 1]
-    { code: "DZ.B033PQ1", name: "高性价比DZ.B033PQ1床架", price: 3816, allowFullCut: false, remark: "爆款特价，不参与满减" },[cite: 1]
-    { code: "B1856PQ1+BY.M2818", name: "夺冠套餐", price: 8999, allowFullCut: false, remark: "爆款特价，不参与满减" },[cite: 1]
-    { code: "JD.B070PQ1+M9002P", name: "夺冠套餐(B070)", price: 6999, allowFullCut: false, remark: "爆款特价，不参与满减" },[cite: 1]
-    { code: "DZ.B033PQ1+M0320D", name: "轻雅套餐", price: 4999, allowFullCut: false, remark: "爆款特价，不参与满减" },[cite: 1]
-    { code: "15816_DUOGUAN", name: "15816元夺冠双厅单卧套餐", price: 15816, allowFullCut: false, remark: "特价套餐不参与满减" },[cite: 1]
-    { code: "13816_ZHISHUI", name: "13816元智睡双卧套餐", price: 13816, allowFullCut: false, remark: "特价套餐不参与满减" },[cite: 1]
-    { code: "9816_WANGPAI", name: "9816元王牌双卧套餐", price: 9816, allowFullCut: false, remark: "特价套餐不参与满减" }[cite: 1]
+    // 特价双套/特价套餐 (一口价，不参与满减)[cite: 1]
+    { code: "DZ.B033PQ1", name: "高性价比DZ.B033PQ1床架", price: 3816, allowFullCut: false, remark: "特价爆款，不参与满减" },[cite: 1]
+    { code: "B1856PQ1+BY.M2818", name: "夺冠套餐", price: 8999, allowFullCut: false, remark: "特价套餐，不参与满减" },[cite: 1]
+    { code: "JD.B070PQ1+M9002P", name: "夺冠套餐(B070)", price: 6999, allowFullCut: false, remark: "特价套餐，不参与满减" },[cite: 1]
+    { code: "DZ.B033PQ1+M0320D", name: "轻雅套餐", price: 4999, allowFullCut: false, remark: "特价套餐，不参与满减" },[cite: 1]
+    { code: "15816_DUOGUAN", name: "15816元夺冠双厅单卧套餐", price: 15816, allowFullCut: false, remark: "全套双厅单卧特价一口价" },[cite: 1]
+    { code: "13816_ZHISHUI", name: "13816元智睡双卧套餐", price: 13816, allowFullCut: false, remark: "特价双卧一口价" },[cite: 1]
+    { code: "9816_WANGPAI", name: "9816元王牌双卧套餐", price: 9816, allowFullCut: false, remark: "特价双卧一口价" }[cite: 1]
 ];
 
 let selectedCart = [];
@@ -148,6 +150,7 @@ function searchProduct() {
         return;
     }
 
+    // 模糊匹配货号或名称[cite: 1]
     const matches = db.filter(item => 
         item.code.toUpperCase().includes(query) || 
         item.name.toUpperCase().includes(query)
@@ -156,20 +159,20 @@ function searchProduct() {
     if (matches.length === 0) {
         resultsBox.innerHTML = '<div class="search-item" style="color:#999;">未找到匹配型号，请检查货号输入</div>';
     } else {
-        resultsBox.innerHTML = matches.map((item) => `
+        resultsBox.innerHTML = matches.map((item, index) => `
             <div class="search-item" onclick="addItem('${item.code}')">
-                <div><strong>${item.name}</strong> <span class="tag ${item.allowFullCut?'tag-red':''}">${item.allowFullCut?'参与满减':'爆款特价/不参与满减'}</span></div>
-                <div style="color:#666; font-size:12px;">货号: ${item.code} | 活动实价: ¥${item.price} (${item.remark})</div>
+                <div><strong>${item.name}</strong> <span class="tag ${item.allowFullCut?'tag-red':''}">${item.allowFullCut?'满减支持':'一口价特价'}</span></div>
+                <div style="color:#666; font-size:12px;">货号/代码: ${item.code} | 活动价: ¥${item.price} (${item.remark})</div>
             </div>
         `).join('');
     }
     resultsBox.style.display = 'block';
 }
 
-function addItem(code) {
-    const item = db.find(p => p.code === code);
-    if (item) {
-        selectedCart.push(item);
+函数 addItem(代码) {
+    const 项目 = 数据库.查询(条件 => 条件.代码 === 代码);
+    如果 (商品) {
+        selectedCart.push(商品);
         renderCart();
         document.getElementById('searchInput').value = '';
         document.getElementById('searchResults').style.display = 'none';
@@ -193,7 +196,7 @@ function renderCart() {
             <div class="selected-info">
                 <strong>${item.name}</strong> (${item.code})<br>
                 <span style="color:#d93025; font-weight:bold;">¥${item.price}</span> 
-                <span class="tag">${item.allowFullCut ? '参与满5000减500':'不参与满减'}</span>
+                <span class="tag">${item.allowFullCut ? '参与满5000减500':'一口价/不参与满减'}</span>
             </div>
             <button class="del-btn" onclick="removeItem(${index})">×</button>
         </div>
@@ -201,51 +204,51 @@ function renderCart() {
 }
 
 function calculateTotal() {
-    if (selectedCart.length === 0) {
-        alert("请先在搜索框查找并添加至少一件产品！");
-        return;
+    如果 (selectedCart.长度 === 0) {
+        alert("请先在搜索框查找并添加至少一件产品或套餐！");
+        返回;
     }
 
-    let allowCutTotal = 0; // 参与满减的金额总计[cite: 1]
-    let noCutTotal = 0;    // 不参与满减的特价一口价金额总计[cite: 1]
+    let allowCutTotal = 0; // 参与满减的金额[cite: 1]
+    let noCutTotal = 0;    // 不参与满减的特价一口价金额[cite: 1]
     let details = [];
 
     selectedCart.forEach(item => {
-        if (item.allowFullCut) {
+        如果 (item.allowFullCut) {
             allowCutTotal += item.price;
         } else {
             noCutTotal += item.price;
         }
-        details.push(`${item.name}: ¥${item.price}`);
+        详情.push(`${item.name}: ¥${item.price}`);
     });
 
-    // 规则2：购任意沙发连带减250元[cite: 1]
+    // 检查沙发连带优惠 (-500)[引用: 1]
     const hasSofa = document.getElementById('hasSofa').checked;
-    if (hasSofa && allowCutTotal > 0) {
-        allowCutTotal -= 250;
-        details.push("沙发连带卧室优惠：-¥250[cite: 1]");
+    如果 (有沙发 && 允许切割总数 > 0) {
+        allowCutTotal -= 500;
+        details.push("沙发连带床垫优惠：-¥500[cite: 1]");
     }
 
-    // 规则1：全场实付满5000元立减500元 (上不封顶，仅限参与满减商品)[cite: 1]
+    // 计算每满5000减500[cite: 1]
     let cutAmount = 0;
-    if (allowCutTotal >= 5000) {
+    如果 (allowCutTotal >= 5000) {
         cutAmount = Math.floor(allowCutTotal / 5000) * 500;
     }
 
     let finalTotal = (allowCutTotal - cutAmount) + noCutTotal;
     
     if (cutAmount > 0) {
-        details.push(`满5000立减优惠：-¥${cutAmount}[cite: 1]`);
+        详情.推送(`满5000立减优惠：-¥${cutAmount}[引用：1]`);
     }
 
-    // 超值换购/加购项计算[cite: 1]
-    if (document.getElementById('opt_jiaju1999').checked) { finalTotal += 1999; details.push("换购家品7件套：+¥1999[cite: 1]"); }
-    if (document.getElementById('opt_jiaju1199').checked) { finalTotal += 1199; details.push("换购夏日凉感8件套：+¥1199[cite: 1]"); }
-    if (document.getElementById('opt_cabinet1399').checked) { finalTotal += 1399; details.push("换购G061真皮小柜：+¥1399[cite: 1]"); }
-    if (document.getElementById('opt_desk399').checked) { finalTotal += 399; details.push("换购床头柜：+¥399[cite: 1]"); }
+    // 加购项计算[cite: 1]
+    如果 (document.getElementById('opt_jiaju1999').被选中) { 最终总额 += 1999; 详情.推入("换购家品7件套：+¥1999[引用: 1]"); }
+    如果 (document.getElementById('opt_jiaju1199').被选中) { 最终总额 += 1199; 详情.推入("换购夏日凉感8件套：+¥1199[引用: 1]"); }
+    如果 (document.getElementById('opt_cabinet1399').被选中) { 最终总额 += 1399; 详情.推入("换购G061真皮小柜：+¥1399[引用: 1]"); }
+    如果 (document.getElementById('opt_desk399').被选中) { 最终总额 += 399; 详情.推入("换购床头柜：+¥399[引用: 1]"); }
 
     document.getElementById('finalPrice').innerText = finalTotal;
-    document.getElementById('detailText').innerHTML = "<b>价格明细：</b><br>" + details.join("<br>");
+    document.getElementById('detailText').innerHTML = "<b>算价明细：</b><br>" + details.join("<br>");
     document.getElementById('resultBox').style.display = 'block';
 }
 </script>
