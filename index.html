@@ -59,7 +59,11 @@
 
     <!-- 附加政策与换购选项 -->
     <div class="form-group" style="border-top: 1px dashed #eee; padding-top: 10px;">
-        <div class="section-title">🎁 客餐厅升级与换购</div>
+        <div class="section-title">🎁 客餐厅升级与优惠</div>
+        <div class="checkbox-group">
+            <input type="checkbox" id="cut_living_250">
+            <label for="cut_living_250">客餐厅品类连带优惠（立减 250 元）</label>
+        </div>
         <div class="checkbox-group">
             <input type="checkbox" id="opt_399_motion">
             <label for="opt_399_motion">+399元 升级指定功能沙发为双电动</label>
@@ -75,8 +79,8 @@
 
         <div class="section-title">🎁 卧室连带与换购优惠</div>
         <div class="checkbox-group">
-            <input type="checkbox" id="hasSofa">
-            <label for="hasSofa">客卧连带（已买任意沙发，卧室连带立减500元）</label>
+            <input type="checkbox" id="cut_bedroom_250">
+            <label for="cut_bedroom_250">卧室空间品类连带优惠（立减 250 元）</label>
         </div>
         <div class="checkbox-group">
             <input type="checkbox" id="opt_1999_house">
@@ -327,11 +331,18 @@ function startCalculate() {
         details.push("<span style='color:#d93025;font-weight:bold;'>触发优惠：买沙发连带PT3710T餐桌立减 -¥1000</span>");
     }
 
-    // 专项优惠 3: 客卧连带立减500元
-    var sofaDiscount = 0;
-    if (document.getElementById('hasSofa').checked || hasSofaInCart) {
-        sofaDiscount = 500;
-        details.push("触发优惠：沙发连带卧室空间立减 -¥500");
+    // 专项优惠 3: 客餐厅品类连带立减250元
+    var livingComboCut = 0;
+    if (document.getElementById('cut_living_250').checked) {
+        livingComboCut = 250;
+        details.push("触发优惠：客餐厅品类连带优惠 -¥250");
+    }
+
+    // 专项优惠 4: 卧室空间品类连带立减250元
+    var bedroomComboCut = 0;
+    if (document.getElementById('cut_bedroom_250').checked) {
+        bedroomComboCut = 250;
+        details.push("触发优惠：卧室空间品类连带优惠 -¥250");
     }
 
     // 常规全场满5000减500
@@ -341,7 +352,7 @@ function startCalculate() {
         details.push("触发优惠：全场实付满5000立减 -¥" + fullCut);
     }
 
-    var finalPrice = (cutTotal - fullCut) + noCutTotal - omoDiscount - diningDiscount - sofaDiscount;
+    var finalPrice = (cutTotal - fullCut) + noCutTotal - omoDiscount - diningDiscount - livingComboCut - bedroomComboCut;
 
     // 换购加价
     if (document.getElementById('opt_399_motion').checked) { finalPrice += 399; details.push("升级加价：功能沙发升级双电动 +¥399"); }
