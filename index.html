@@ -31,6 +31,7 @@
         .tag { font-size: 11px; padding: 1px 5px; border-radius: 3px; background: #e0e0e0; margin-left: 4px; }
         .tag-green { background: #d4edda; color: #155724; }
         .tag-orange { background: #fff3cd; color: #856404; }
+        .tag-blue { background: #cce5ff; color: #004085; }
     </style>
 </head>
 <body>
@@ -39,13 +40,13 @@
     <h2>🛋️ 816顾家日 - 智能精准报价工具</h2>
     
     <div class="form-group">
-        <label>🔍 第一步：输入货号或名称查找（如 1075、B308、M0190）：</label>
-        <input type="text" id="searchInput" placeholder="输入货号/名称，按回车或点查询" oninput="findMatches()">
+        <label>🔍 第一步：输入货号或名称查找（如 1075、0190、B308）：</label>
+        <input type="text" id="searchInput" placeholder="输入货号/名称，自动搜索" oninput="findMatches()">
     </div>
 
     <!-- 检索匹配结果选择区 -->
     <div id="matchSection" style="display:none;">
-        <label style="color:#d93025;">请选择你要计算的价格类型（单品 或 套餐）：</label>
+        <label style="color:#d93025;">请选择要添加的货号或套餐类型：</label>
         <div class="match-box" id="matchList"></div>
     </div>
 
@@ -59,7 +60,7 @@
         <label>🎁 第三步：勾选附加活动优惠/换购：</label>
         <div class="checkbox-group">
             <input type="checkbox" id="hasSofa">
-            <label for="hasSofa">已买沙发（卧室床+床垫享连带优惠立减250元）</label>
+            <label for="hasSofa">已买沙发（卧室连带优惠立减250元）</label>
         </div>
         <div class="checkbox-group">
             <input type="checkbox" id="opt_1999">
@@ -89,54 +90,55 @@
 </div>
 
 <script>
-// 全量包含单品与套餐的活动方案数据库
+// 精确数据库（正确配置 OMO 产品及常规全场满减属性）
 var db = [
-    // --- 1075 云梦 区分单品与不同套餐 ---
-    { id: 1, code: "B1075PQ3", name: "云梦床架 (新品单品实价)", price: 7999, type: "单品", cut: true },
-    { id: 2, code: "B1075PQ3+M0577P", name: "云梦数字套餐 (床+床垫)", price: 14999, type: "套餐", cut: true },
-    { id: 3, code: "B1075PQ3+M0579", name: "生辉床架任选套餐 (含1075)", price: 14999, type: "套餐", cut: true },
-    { id: 4, code: "JD.B007PQ3/4", name: "云梦床架 (焕新爆款单品价)", price: 10999, type: "单品", cut: true },
-    { id: 5, code: "B1065PQ3", name: "云梦/云谣 爆款单卧套餐", price: 10999, type: "套餐", cut: false },
+    // OMO 专项爆款单品 (不参加全场满5000-500，享受专项组合减1000)
+    { id: 1, code: "B1075PQ3", name: "云梦床架 (OMO爆款单品)", price: 7999, type: "OMO单品", cut: false, groupKey: "1075_0190" },
+    { id: 2, code: "M0190", name: "3D全撑X5床垫 (OMO爆款单品)", price: 5999, type: "OMO单品", cut: false, groupKey: "1075_0190" },
 
-    // --- B308 / B527 青少年系列 ---
-    { id: 6, code: "B308PQ1/B527PQ1", name: "未来星青少年床架 (单品实价)", price: 6999, type: "单品", cut: true },
-    { id: 7, code: "B308PQ1+DZ.M9010", name: "未来星青少年套餐 (床+椰棕床垫)", price: 7999, type: "套餐", cut: true },
+    // 套餐类 (一口价/套餐不参与全场满减)
+    { id: 3, code: "B1075PQ3+M0577P", name: "云梦数字套餐 (床+床垫)", price: 14999, type: "套餐", cut: true },
+    { id: 4, code: "B1075PQ3+M0579", name: "生辉床架任选套餐 (含1075)", price: 14999, type: "套餐", cut: true },
+    { id: 5, code: "JD.B007PQ3/4", name: "云梦床架 (焕新爆款单品价)", price: 10999, type: "单品", cut: true },
+    { id: 6, code: "B1065PQ3", name: "云梦/云谣 爆款单卧套餐", price: 10999, type: "套餐", cut: false },
 
-    // --- 床垫单品 ---
-    { id: 8, code: "M0190", name: "3D全撑X5床垫", price: 5999, type: "单品", cut: true },
+    // 青少年系列
+    { id: 7, code: "B308PQ1/B527PQ1", name: "未来星青少年床架 (单品实价)", price: 6999, type: "单品", cut: true },
+    { id: 8, code: "B308PQ1+DZ.M9010", name: "未来星青少年套餐 (床+椰棕床垫)", price: 7999, type: "套餐", cut: true },
+
+    // 其他常规单品 (参与全场满5000-500)
     { id: 9, code: "M0188P", name: "王牌3D床垫", price: 11399, type: "单品", cut: true },
     { id: 10, code: "M0577Pro", name: "M0577Pro焕新主推床垫", price: 5999, type: "单品", cut: true },
     { id: 11, code: "JD.M1012.M26", name: "新婚垫&孝心垫", price: 4999, type: "单品", cut: true },
     { id: 12, code: "JD.M1015.H24", name: "M3001升级款床垫", price: 3999, type: "单品", cut: true },
     { id: 13, code: "DZ.M9010", name: "青少年椰棕床垫", price: 2599, type: "单品", cut: true },
-    { id: 14, code: "M0130S", name: "青少年3D床垫", price: 3599, type: "单品", cut: true },
 
-    // --- 智能系列 ---
-    { id: 15, code: "ZX.M0580Z", name: "S系列S8智能床垫", price: 17999, type: "单品", cut: true },
-    { id: 16, code: "ZX.M0560Z", name: "S系列S6智能床垫", price: 17999, type: "单品", cut: true },
-    { id: 17, code: "ZX.M0331D.M26", name: "星舟1号Pro智能套床", price: 16999, type: "套餐", cut: true },
+    // 智能系列
+    { id: 14, code: "ZX.M0580Z", name: "S系列S8智能床垫", price: 17999, type: "单品", cut: true },
+    { id: 15, code: "ZX.M0560Z", name: "S系列S6智能床垫", price: 17999, type: "单品", cut: true },
+    { id: 16, code: "ZX.M0331D.M26", name: "星舟1号Pro智能套床", price: 16999, type: "套餐", cut: true },
 
-    // --- IDeep深睡系列 ---
-    { id: 18, code: "M1007A", name: "纯3D床垫(IDeep)", price: 40999, type: "单品", cut: true },
-    { id: 19, code: "M1821", name: "伊甸(IDeep)", price: 21999, type: "单品", cut: true },
-    { id: 20, code: "M1812", name: "传奇大满贯(IDeep)", price: 23999, type: "单品", cut: true },
-    { id: 21, code: "M0578", name: "礼玉(IDeep)", price: 18999, type: "单品", cut: true },
+    // IDeep深睡系列
+    { id: 17, code: "M1007A", name: "纯3D床垫(IDeep)", price: 40999, type: "单品", cut: true },
+    { id: 18, code: "M1821", name: "伊甸(IDeep)", price: 21999, type: "单品", cut: true },
+    { id: 19, code: "M1812", name: "传奇大满贯(IDeep)", price: 23999, type: "单品", cut: true },
+    { id: 20, code: "M0578", name: "礼玉(IDeep)", price: 18999, type: "单品", cut: true },
 
-    // --- 其他推荐床架 ---
-    { id: 22, code: "B1085PQ3", name: "珀斯床架", price: 13999, type: "单品", cut: true },
-    { id: 23, code: "B1855PQ1", name: "花瓣床架", price: 8999, type: "单品", cut: true },
-    { id: 24, code: "B553PQ1", name: "云谣床架", price: 8599, type: "单品", cut: true },
-    { id: 25, code: "JD.B036PQ3", name: "抱抱床架", price: 7599, type: "单品", cut: true },
-    { id: 26, code: "BY.B260PQ1", name: "B260床架", price: 5999, type: "单品", cut: true },
+    // 其他床架
+    { id: 21, code: "B1085PQ3", name: "珀斯床架", price: 13999, type: "单品", cut: true },
+    { id: 22, code: "B1855PQ1", name: "花瓣床架", price: 8999, type: "单品", cut: true },
+    { id: 23, code: "B553PQ1", name: "云谣床架", price: 8599, type: "单品", cut: true },
+    { id: 24, code: "JD.B036PQ3", name: "抱抱床架", price: 7599, type: "单品", cut: true },
+    { id: 25, code: "BY.B260PQ1", name: "B260床架", price: 5999, type: "单品", cut: true },
 
-    // --- 爆款特价 / 组合一口价 (标注不参与满减) ---
-    { id: 27, code: "B553PQ1/M1010", name: "抱抱/蓝山 爆款单卧套餐", price: 9999, type: "套餐", cut: false },
-    { id: 28, code: "DZ.B033PQ1", name: "高性价比床架(DZ.B033PQ1)", price: 3816, type: "特价单品", cut: false },
-    { id: 29, code: "B1856PQ1+BY.M2818", name: "夺冠套餐", price: 8999, type: "特价套餐", cut: false },
-    { id: 30, code: "DZ.B033PQ1+M0320D", name: "轻雅套餐", price: 4999, type: "特价套餐", cut: false },
-    { id: 31, code: "15816", name: "15816元夺冠双厅单卧套餐", price: 15816, type: "特价套餐", cut: false },
-    { id: 32, code: "13816", name: "13816元智睡双卧套餐", price: 13816, type: "特价套餐", cut: false },
-    { id: 33, code: "9816", name: "9816元王牌双卧套餐", price: 9816, type: "特价套餐", cut: false }
+    // 一口价特价套餐 (不参与满减)
+    { id: 26, code: "B553PQ1/M1010", name: "抱抱/蓝山 爆款单卧套餐", price: 9999, type: "套餐", cut: false },
+    { id: 27, code: "DZ.B033PQ1", name: "高性价比床架(DZ.B033PQ1)", price: 3816, type: "特价", cut: false },
+    { id: 28, code: "B1856PQ1+BY.M2818", name: "夺冠套餐", price: 8999, type: "特价", cut: false },
+    { id: 29, code: "DZ.B033PQ1+M0320D", name: "轻雅套餐", price: 4999, type: "特价", cut: false },
+    { id: 30, code: "15816", name: "15816元夺冠双厅单卧套餐", price: 15816, type: "特价", cut: false },
+    { id: 31, code: "13816", name: "13816元智睡双卧套餐", price: 13816, type: "特价", cut: false },
+    { id: 32, code: "9816", name: "9816元王牌双卧套餐", price: 9816, type: "特价", cut: false }
 ];
 
 var selectedCart = [];
@@ -164,12 +166,12 @@ function findMatches() {
         var html = '';
         for (var j = 0; j < results.length; j++) {
             var item = results[j];
-            var typeTag = item.type === '单品' ? '<span class="tag tag-green">单品</span>' : '<span class="tag tag-orange">套餐</span>';
-            var cutTag = item.cut ? '<span class="tag tag-green">可满减</span>' : '<span class="tag">不参与满减</span>';
+            var typeTag = '<span class="tag tag-blue">' + item.type + '</span>';
+            var cutTag = item.cut ? '<span class="tag tag-green">参与全场满减</span>' : '<span class="tag">不参加全场满减</span>';
             html += '<div class="match-item">' +
                         '<div class="match-info">' +
                             '<strong>' + item.name + '</strong> ' + typeTag + cutTag + '<br>' +
-                            '货号: ' + item.code + ' | 实价/活动价: ¥' + item.price +
+                            '货号: ' + item.code + ' | 实价: ¥' + item.price +
                         '</div>' +
                         '<button class="add-btn" onclick="addToCart(' + item.id + ')">+ 添加</button>' +
                     '</div>';
@@ -205,7 +207,7 @@ function renderCart() {
     for (var i = 0; i < selectedCart.length; i++) {
         var item = selectedCart[i];
         html += '<div class="selected-item">' +
-                    '<div><b>' + item.name + '</b> (' + item.type + ') - ¥' + item.price + '</div>' +
+                    '<div><b>' + item.name + '</b> - ¥' + item.price + '</div>' +
                     '<button class="del-btn" onclick="removeFromCart(' + i + ')">×</button>' +
                 '</div>';
     }
@@ -221,39 +223,50 @@ function startCalculate() {
     var cutTotal = 0;
     var noCutTotal = 0;
     var details = [];
+    var has1075 = false;
+    var has0190 = false;
 
     for (var i = 0; i < selectedCart.length; i++) {
         var item = selectedCart[i];
+        if (item.code === "B1075PQ3" && item.type === "OMO单品") has1075 = true;
+        if (item.code === "M0190" && item.type === "OMO单品") has0190 = true;
+
         if (item.cut) {
             cutTotal += item.price;
         } else {
             noCutTotal += item.price;
         }
-        details.push("【已选】" + item.name + " (" + item.type + "): ¥" + item.price);
+        details.push("【已选】" + item.name + ": ¥" + item.price);
     }
 
-    // 购沙发减250
-    if (document.getElementById('hasSofa').checked && cutTotal > 0) {
-        cutTotal -= 250;
-        details.push("沙发连带卧室优惠：-¥250");
+    // 检查 OMO 1075 + 0190 组合连带减1000专项政策
+    var comboDiscount = 0;
+    if (has1075 && has0190) {
+        comboDiscount = 1000;
+        details.push("<span style='color:#d93025;font-weight:bold;'>触发优惠：1075床架+0190床垫 组合立减优惠 -¥1000</span>");
     }
 
-    // 满5000减500 (仅对参与满减的算)
+    // 沙发连带优惠立减250
+    var sofaDiscount = 0;
+    if (document.getElementById('hasSofa').checked) {
+        sofaDiscount = 250;
+        details.push("触发优惠：沙发连带卧室立减 -¥250");
+    }
+
+    // 常规全场满5000减500 (仅算标记参与满减的常规商品)
     var fullCut = 0;
     if (cutTotal >= 5000) {
         fullCut = Math.floor(cutTotal / 5000) * 500;
+        details.push("触发优惠：全场满5000立减优惠 -¥" + fullCut);
     }
 
-    var finalPrice = (cutTotal - fullCut) + noCutTotal;
-    if (fullCut > 0) {
-        details.push("全场满5000立减优惠：-¥" + fullCut);
-    }
+    var finalPrice = (cutTotal - fullCut) + noCutTotal - comboDiscount - sofaDiscount;
 
-    // 换购
-    if (document.getElementById('opt_1999').checked) { finalPrice += 1999; details.push("换购家品7件套：+¥1999"); }
-    if (document.getElementById('opt_1199').checked) { finalPrice += 1199; details.push("换购夏日凉感8件套：+¥1199"); }
-    if (document.getElementById('opt_1399').checked) { finalPrice += 1399; details.push("换购真皮小柜：+¥1399"); }
-    if (document.getElementById('opt_399').checked) { finalPrice += 399; details.push("换购床头柜：+¥399"); }
+    // 换购加价
+    if (document.getElementById('opt_1999').checked) { finalPrice += 1999; details.push("换购加价：家品7件套 +¥1999"); }
+    if (document.getElementById('opt_1199').checked) { finalPrice += 1199; details.push("换购加价：夏日凉感8件套 +¥1199"); }
+    if (document.getElementById('opt_1399').checked) { finalPrice += 1399; details.push("换购加价：真皮小柜一对 +¥1399"); }
+    if (document.getElementById('opt_399').checked) { finalPrice += 399; details.push("换购加价：PTW3002G床头柜 +¥399"); }
 
     document.getElementById('finalPrice').innerText = finalPrice;
     document.getElementById('detailText').innerHTML = "<b>报价计算明细：</b><br>" + details.join("<br>");
